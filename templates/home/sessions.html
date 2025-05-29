@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}F1 Sessions{% endblock %}
+
+{% block content %}
+{# 获取当前时间 #}
+{% set now = (range(0,1)|first)|string %}
+<h1 class="mb-4 text-danger">Sessions
+    {% if sessions and sessions[0].date_start and sessions[0].date_end %}
+        {# 仅用字符串比较，适用于ISO格式 #}
+        {% if sessions[0].date_start <= now <= sessions[0].date_end %}
+            <span class="badge bg-danger align-middle" style="font-size:1rem;vertical-align:middle;">LIVE</span>
+        {% endif %}
+    {% endif %}
+</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for session in sessions %}
+    <div class="col">
+        <div class="card h-100 border-danger">
+            <div class="card-body">
+                <h5 class="card-title">{{ session.session_name }} - {{ session.session_type }}</h5>
+                <p class="card-text">
+                    <strong>Time:</strong> {{ session.date_start }}<br>
+                    <strong>Place:</strong> {{ session.location }}, {{ session.country_name }}<br>
+                    <strong>Track:</strong> {{ session.circuit_short_name }}
+                </p>
+                <a href="/tr?session_id={{ session.session_key }}" class="btn btn-outline-danger btn-sm">Team Radio</a>
+                <a href="/stint?session_id={{ session.session_key }}" class="btn btn-outline-danger btn-sm">Stints</a>
+                <a href="/live?session_id={{ session.session_key }}" class="btn btn-outline-danger btn-sm">Live Speed</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ from app.services.database import Database
 from datetime import datetime, timedelta, UTC
 
 DRIVER_CACHE_KEY = "last_driver_fetch"
-CACHE_EXPIRY = timedelta(hours=6)
+CACHE_EXPIRY = timedelta(hours=24)
 
 def get_all_drivers() -> list[Driver]:
     db = Database()

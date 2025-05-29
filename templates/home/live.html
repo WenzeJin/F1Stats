@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Live Timing{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-danger">Live Timing</h1>
+<div id="live-table-container">
+    <div class="spinner-border text-danger" role="status" id="loading-spinner">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <table class="table table-striped align-middle mt-3 d-none" id="live-table">
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Lap</th>
+                <th>Lap Time</th>
+                <th>Best Lap</th>
+                <th>S1</th>
+                <th>S2</th>
+                <th>S3</th>
+                <th>Pit Out</th>
+                <th>Speed Trap</th>
+            </tr>
+        </thead>
+        <tbody id="live-table-body">
+        </tbody>
+    </table>
+</div>
+<script>
+function formatTime(sec) {
+    if (!sec) return '-';
+    let s = Number(sec);
+    let min = Math.floor(s / 60);
+    let ms = ((s % 60).toFixed(3)).padStart(6, '0');
+    return `${min}:${ms}`;
+}
+function sectorColor(val) {
+    if (val == null) return '';
+    if (val == 2048) return 'bg-warning';
+    if (val == 2049) return 'bg-success';
+    if (val == 2051) return 'bg-purple';
+    if (val == 2064) return 'bg-secondary';
+    return '';
+}
+function updateLiveTable() {
+    Promise.all([
+        fetch(`/live_data?session_id={{ session_id }}`).then(r => r.json()),
+        fetch(`/live_best_laps?session_id={{ session_id }}`).then(r => r.json())
+    ]).then(([data, bestLaps]) => {
+        const tbody = document.getElementById('live-table-body');
+        tbody.innerHTML = '';
+        // 按最快圈速排序
+        data.sort((a, b) => {
+            const bestA = bestLaps[a.driver_number] || 99999;
+            const bestB = bestLaps[b.driver_number] || 99999;
+            return bestA - bestB;
+        });
+        data.forEach(lap => {
+            const driver = {{ id_to_driver|tojson }}[lap.driver_number];
+            let row = `<tr>`;
+            row += `<td><img src="${driver.headshot_url}" class='rounded-circle me-2' style='width:32px;height:32px;object-fit:cover;border:2px solid #${driver.team_colour};'> <strong>${driver.full_name}</strong> <span class='text-muted'>#${lap.driver_number}</span></td>`;
+            row += `<td>${lap.lap_number}</td>`;
+            row += `<td>${formatTime(lap.lap_duration)}</td>`;
+            row += `<td class='fw-bold text-danger'>${formatTime(bestLaps[lap.driver_number])}</td>`;
+            row += `<td class='${sectorColor(lap.segments_sector_1?.[0])}'>${formatTime(lap.duration_sector_1)}</td>`;
+            row += `<td class='${sectorColor(lap.segments_sector_2?.[0])}'>${formatTime(lap.duration_sector_2)}</td>`;
+            row += `<td class='${sectorColor(lap.segments_sector_3?.[0])}'>${formatTime(lap.duration_sector_3)}</td>`;
+            row += `<td>${lap.is_pit_out_lap ? 'Yes' : ''}</td>`;
+            row += `<td>${lap.st_speed ? lap.st_speed + ' km/h' : '-'}</td>`;
+            row += `</tr>`;
+            tbody.innerHTML += row;
+        });
+        document.getElementById('live-table').classList.remove('d-none');
+        document.getElementById('loading-spinner').classList.add('d-none');
+    });
+}
+updateLiveTable();
+setInterval(updateLiveTable, 10000);
+</script>
+<style>
+.bg-purple { background-color: #a020f0 !important; color: #fff; }
+</style>
+{% endblock %}

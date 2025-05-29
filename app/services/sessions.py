@@ -4,7 +4,7 @@ from app.models.session import Session
 from app.services.database import Database
 
 SESSION_CACHE_KEY = "last_session_fetch"
-CACHE_EXPIRY = timedelta(hours=6)
+CACHE_EXPIRY = timedelta(minutes=15)
 
 def get_all_sessions() -> list[Session]:
     db = Database()

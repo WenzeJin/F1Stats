@@ -59,6 +59,25 @@ class Database:
         ''')
         self.conn.commit()
 
+    def create_meetings_table(self):
+        self.conn.execute('''
+        CREATE TABLE IF NOT EXISTS meetings (
+            meeting_key INTEGER PRIMARY KEY,
+            circuit_key INTEGER,
+            circuit_short_name TEXT,
+            country_code TEXT,
+            country_key INTEGER,
+            country_name TEXT,
+            date_start TEXT,
+            gmt_offset TEXT,
+            location TEXT,
+            meeting_name TEXT,
+            meeting_official_name TEXT,
+            year INTEGER
+        )
+        ''')
+        self.conn.commit()
+
     def update_last_fetch_time(self, key: str, time: datetime):
         self.conn.execute("REPLACE INTO metadata (key, value) VALUES (?, ?)", (key, time.isoformat()))
         self.conn.commit()
@@ -101,6 +120,27 @@ class Database:
     def load_drivers(self) -> list[dict]:
         self.create_drivers_table()
         cursor = self.conn.execute('SELECT * FROM drivers')
+        columns = [desc[0] for desc in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    def save_meetings(self, meetings: list[dict]):
+        self.create_meetings_table()
+        self.conn.execute('DELETE FROM meetings')
+        for m in meetings:
+            self.conn.execute('''
+                INSERT OR REPLACE INTO meetings (
+                    meeting_key, circuit_key, circuit_short_name, country_code, country_key, country_name, date_start, gmt_offset, location, meeting_name, meeting_official_name, year
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                m.get('meeting_key'), m.get('circuit_key'), m.get('circuit_short_name'), m.get('country_code'), m.get('country_key'),
+                m.get('country_name'), m.get('date_start'), m.get('gmt_offset'), m.get('location'), m.get('meeting_name'),
+                m.get('meeting_official_name'), m.get('year')
+            ))
+        self.conn.commit()
+
+    def load_meetings(self) -> list[dict]:
+        self.create_meetings_table()
+        cursor = self.conn.execute('SELECT * FROM meetings')
         columns = [desc[0] for desc in cursor.description]
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
 

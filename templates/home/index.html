@@ -1,24 +1,23 @@
-<!-- templates/sessions.html -->
+<!-- templates/meetings.html -->
 {% extends "base.html" %}
 
-{% block title %}F1 Sessions{% endblock %}
+{% block title %}F1 Meetings{% endblock %}
 
 {% block content %}
-<h1 class="mb-4 text-danger">Current year sessions</h1>
-
+<h1 class="mb-4 text-danger">F1 Meetings</h1>
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    {% for session in sessions %}
+    {% for meeting in meetings %}
     <div class="col">
-        <div class="card h-100 border-danger">
+        <div class="card h-100 border-danger shadow" style="border-width:2px;">
+
             <div class="card-body">
-                <h5 class="card-title">{{ session.session_name }} - {{ session.session_type }}</h5>
+                <h5 class="card-title text-danger">{{ meeting.meeting_name }}</h5>
                 <p class="card-text">
-                    <strong>Time:</strong> {{ session.date_start }}<br>
-                    <strong>Place:</strong> {{ session.location }}, {{ session.country_name }}<br>
-                    <strong>Track:</strong> {{ session.circuit_short_name }}
+                    <strong>Date:</strong> {{ meeting.date_start[:10] }}<br>
+                    <strong>Location:</strong> {{ meeting.location }}, {{ meeting.country_name }}<br>
+                    <strong>Circuit:</strong> {{ meeting.circuit_short_name }}
                 </p>
-                <!-- TODO: Add link to session details -->
-                <a href="/tr?session_id={{ session.session_key }}" class="btn btn-outline-danger btn-sm">Team Radio</a>
+                <a href="/sessions?meeting_key={{ meeting.meeting_key }}" class="btn btn-outline-danger btn-sm">View Sessions</a>
             </div>
         </div>
     </div>

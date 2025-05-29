@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Stint Overview{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-primary">Stint Overview for {{ session.circuit_short_name }} {{ session.session_name }}</h1>
+
+{% if stints_by_driver %}
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Stints</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for driver_number, stints in stints_by_driver.items() %}
+            <tr>
+                <td class="d-flex align-items-center">
+                    <img src="{{ id_to_driver[driver_number].headshot_url }}" alt="{{ id_to_driver[driver_number].full_name }}" class="rounded-circle me-2" style="width:48px;height:48px;object-fit:cover;border:2px solid #{{ id_to_driver[driver_number].team_colour }};">
+                    <div>
+                        <strong>{{ id_to_driver[driver_number].full_name }}</strong><br>
+                        <span class="text-muted">#{{ driver_number }} | {{ id_to_driver[driver_number].team_name }}</span>
+                    </div>
+                </td>
+                <td style="min-width:400px;">
+                    <div class="d-flex align-items-center" style="height:32px;">
+                        {% for stint in stints %}
+                            {% set colors = {'SOFT':'#ff1e3c','MEDIUM':'#ffe600','HARD':'#f8f8f8','INTERMEDIATE':'#43b02a','WET':'#0090ff'} %}
+                            {% set color = colors[stint.compound] if stint.compound in colors else '#888' %}
+                            {% set width = ((stint.lap_end - stint.lap_start + 1) / max_lap * 100) %}
+                            <div title="{{ stint.compound }}: L{{ stint.lap_start }}-{{ stint.lap_end }} ({{ stint.lap_end - stint.lap_start + 1 }} laps)" style="background:{{ color }};width:{{ width }}%;height:100%;border-radius:4px;margin-right:2px;border:1px solid #ccc;position:relative;">
+                                <span style="position:absolute;left:2px;top:2px;font-size:10px;color:#222;">{{ stint.compound[0] }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No stint data found for this session.</p>
+{% endif %}
+{% endblock %}

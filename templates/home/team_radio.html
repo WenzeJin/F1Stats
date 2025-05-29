@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Team Radio{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-danger">Team Radio for {{ session.circuit_short_name }} {{ session.session_name }}</h1>
+
+{% if radios %}
+<div class="list-group">
+    {% for radio in radios %}
+    <div class="list-group-item py-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="{{ id_to_driver[radio.driver_number].headshot_url }}" alt="{{ id_to_driver[radio.driver_number].full_name }}" class="rounded-circle me-3" style="width:56px;height:56px;object-fit:cover;border:2px solid #{{ id_to_driver[radio.driver_number].team_colour }};">
+                <div>
+                    <h5 class="mb-1">{{ id_to_driver[radio.driver_number].full_name }} <span class="badge bg-secondary">#{{ radio.driver_number }}</span></h5>
+                    <small class="text-muted">{{ id_to_driver[radio.driver_number].team_name }} | {{ id_to_driver[radio.driver_number].country_code }}</small>
+                </div>
+            </div>
+            <small class="text-muted">{{ radio.date }}</small>
+        </div>
+        <audio controls src="{{ radio.recording_url }}" class="mt-2 w-100">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No team radio found for this session.</p>
+{% endif %}
+{% endblock %}
+

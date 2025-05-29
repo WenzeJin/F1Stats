@@ -1,0 +1,27 @@
+<!-- templates/sessions.html -->
+{% extends "base.html" %}
+
+{% block title %}F1 Sessions{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-danger">Current year sessions</h1>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for session in sessions %}
+    <div class="col">
+        <div class="card h-100 border-danger">
+            <div class="card-body">
+                <h5 class="card-title">{{ session.session_name }} - {{ session.session_type }}</h5>
+                <p class="card-text">
+                    <strong>Time:</strong> {{ session.date_start }}<br>
+                    <strong>Place:</strong> {{ session.location }}, {{ session.country_name }}<br>
+                    <strong>Track:</strong> {{ session.circuit_short_name }}
+                </p>
+                <!-- TODO: Add link to session details -->
+                <a href="/tr?session_id={{ session.session_key }}" class="btn btn-outline-danger btn-sm">Team Radio</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
